@@ -2,12 +2,9 @@
 import {
   Box,
   Button,
-  Checkbox,
+  Code,
   Flex,
-  FormLabel,
   Heading,
-  Input,
-  Select,
   Textarea,
   VStack,
 } from "@chakra-ui/react";
@@ -26,6 +23,7 @@ interface Field {
 const FormGenerator = () => {
   const [prompt, setPrompt] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
+  const [result, setResult] = useState<{ response: string } | null>(null);
   const [fields, setFields] = useState<Field[]>([]);
 
   const generateFromAI = async () => {
@@ -35,7 +33,7 @@ const FormGenerator = () => {
     try {
       const baseUrl =
         typeof window !== "undefined" ? window.location.origin : "";
-      const res = await fetch(`${baseUrl}/api/prompt`, {
+      const res = await fetch(`${baseUrl}/api/forms/prompt`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
@@ -43,6 +41,8 @@ const FormGenerator = () => {
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const result = await res.json();
+      setResult(result);
+      console.log("🚀 ~ generateFromAI ~ result:", result);
 
       // Traiter le résultat ici
       if (result.fields && Array.isArray(result.fields)) {
@@ -60,7 +60,7 @@ const FormGenerator = () => {
   };
 
   return (
-    <Flex h="100vh" p={4} gap={4} bg="gray.50">
+    <Flex h="80vh" p={4} gap={4} bg="gray.50">
       {/* AI Prompt input */}
       <Box flex="1" bg="white" p={4} borderRadius="md" shadow="md">
         <Heading size="md" mb={3}>
@@ -78,7 +78,7 @@ const FormGenerator = () => {
           mt={3}
           colorScheme="blue"
           onClick={generateFromAI}
-          isLoading={loadingAI}
+          loading={loadingAI}
         >
           Générer
         </Button>
@@ -96,9 +96,11 @@ const FormGenerator = () => {
         <Heading size="md" mb={3}>
           Preview
         </Heading>
-        <VStack spacing={4} align="stretch">
-          {fields.map((f: Field) => (
-            <Box key={f.id}>
+        <VStack gap={4} align="stretch">
+          {result?.response && <Code>{result.response}</Code>}
+
+          {/* {fields.map((f: Field) => (
+            <Field.Root key>
               <FormLabel>
                 {f.label}
                 {f.required ? " *" : ""}
@@ -106,18 +108,12 @@ const FormGenerator = () => {
               {f.type === "textarea" ? (
                 <Textarea placeholder={f.placeholder} />
               ) : f.type === "select" ? (
-                <Select>
-                  {f.options.map((o: string, i: number) => (
-                    <option key={i}>{o}</option>
-                  ))}
-                </Select>
               ) : f.type === "checkbox" ? (
-                <Checkbox>{f.label}</Checkbox>
               ) : (
                 <Input type={f.type} placeholder={f.placeholder} />
               )}
-            </Box>
-          ))}
+            </Field.Root>
+          ))} */}
           {fields.length > 0 && <Button colorScheme="green">Submit</Button>}
         </VStack>
       </Box>
