@@ -1,5 +1,6 @@
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
+import { Provider } from "@/components/ui/provider";
 import type { Metadata } from "next";
+import { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -9,12 +10,12 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
-    <html lang="fr">
+    <html suppressHydrationWarning>
       <body>
-        <ChakraProvider value={defaultSystem}>{children}</ChakraProvider>
+        <Provider>{children}</Provider>
       </body>
     </html>
   );
