@@ -1,25 +1,23 @@
 "use client";
+import FormField from "@/components/form-field";
+import { toaster } from "@/components/ui/toaster";
 import {
   Box,
   Button,
   Card,
-  Checkbox,
   Container,
-  Field,
   Flex,
   GridItem,
   HStack,
   Heading,
   Icon,
   IconButton,
-  Input,
-  Select,
   SimpleGrid,
   Text,
   Textarea,
   VStack,
-  createListCollection,
 } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { LuSave, LuTrash } from "react-icons/lu";
 import { RxMagicWand } from "react-icons/rx";
@@ -35,6 +33,7 @@ const FormGenerator = () => {
   const [conversationHistory, setConversationHistory] = useState<
     Array<{ role: "user" | "assistant"; content: string; timestamp: Date }>
   >([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchFormByMCC = async () => {
@@ -303,57 +302,7 @@ const FormGenerator = () => {
                       key={field.id}
                       colSpan={field.type === "textarea" ? 2 : 1}
                     >
-                      <Field.Root required={field.required}>
-                        <Field.Label>
-                          {field.label}
-                          {field.required && <Field.RequiredIndicator />}
-                        </Field.Label>
-                        {field.type === "textarea" ? (
-                          <Textarea placeholder={field.placeholder} />
-                        ) : field.type === "select" &&
-                          field.options.length > 0 ? (
-                          <Select.Root
-                            collection={createListCollection({
-                              items: field.options,
-                            })}
-                            gap={0}
-                            cursor="pointer"
-                          >
-                            <Select.HiddenSelect />
-                            <Select.Label />
-                            <Select.Control>
-                              <Select.Trigger>
-                                <Select.ValueText
-                                  placeholder={field.placeholder}
-                                />
-                              </Select.Trigger>
-                              <Select.IndicatorGroup>
-                                <Select.Indicator />
-                                <Select.ClearTrigger />
-                              </Select.IndicatorGroup>
-                            </Select.Control>
-                            <Select.Positioner>
-                              <Select.Content>
-                                {field.options.map((option) => (
-                                  <Select.Item key={option} item={option}>
-                                    {option}
-                                  </Select.Item>
-                                ))}
-                              </Select.Content>
-                            </Select.Positioner>
-                          </Select.Root>
-                        ) : field.type === "checkbox" ? (
-                          <Checkbox.Root>
-                            <Checkbox.Control />
-                            <Checkbox.Label>{field.label}</Checkbox.Label>
-                          </Checkbox.Root>
-                        ) : (
-                          <Input
-                            type={field.type}
-                            placeholder={field.placeholder}
-                          />
-                        )}
-                      </Field.Root>
+                      <FormField field={field} />
                     </GridItem>
                   ))}
                 </SimpleGrid>
@@ -380,6 +329,15 @@ const FormGenerator = () => {
                   variant="surface"
                   size="sm"
                   disabled={!form?.fields?.length}
+                  onClick={() => {
+                    localStorage.setItem("form", JSON.stringify(form));
+                    toaster.success({
+                      title: "Formulaire enregistré avec succès",
+                    });
+                    setTimeout(() => {
+                      router.push("/client");
+                    }, 1000);
+                  }}
                 >
                   <Icon>
                     <LuSave />
