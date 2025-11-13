@@ -196,7 +196,12 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
               <Flex justify="flex-end">
                 {conversationHistory.length > 0 && (
                   <IconButton
-                    onClick={() => setConversationHistory([])}
+                    onClick={() => {
+                      setConversationHistory([]);
+                      setForm(initialForm);
+                      setResult(null);
+                      setPrompt("");
+                    }}
                     size="sm"
                     colorPalette="gray"
                     variant="surface"
