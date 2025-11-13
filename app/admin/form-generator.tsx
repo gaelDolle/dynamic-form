@@ -104,7 +104,9 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                 Preview
               </Heading>
               <VStack gap={4} align="stretch">
-                {result?.response && <Code>{result.response}</Code>}
+                {result?.response && (
+                  <Code>{JSON.stringify(result.response, null, 2)}</Code>
+                )}
 
                 {fields.map((field: FieldType) => (
                   <Field.Root key={field.id} required={field.required}>
