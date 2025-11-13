@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   Checkbox,
-  Code,
   Container,
   Field,
   Flex,
@@ -28,6 +27,11 @@ interface FormGeneratorProps {
   initialData?: FormType | null;
 }
 
+interface HistoryEntry {
+  prompt: string;
+  timestamp: Date;
+}
+
 const FormGenerator = ({ initialData }: FormGeneratorProps) => {
   const [prompt, setPrompt] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
@@ -41,8 +45,7 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
 
   useEffect(() => {
     if (initialData?.fields) {
-      setInitialForm(initialData);
-      setForm(initialData);
+      setForm(initialData as FormType);
     }
   }, [initialData]);
 
@@ -102,8 +105,6 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const result = await res.json();
-      setResult(result);
-      console.log("🚀 ~ generateFromAI ~ result:", result);
 
       // Mettre à jour l'historique de conversation
       const assistantResponse = JSON.stringify(result);
@@ -114,13 +115,26 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
       ]);
 
       if (result.fields && Array.isArray(result.fields)) {
-        const newForm = {
-          ...initialForm,
-          fields: [...(initialForm?.fields || []), ...result.fields],
-        };
-        setForm(newForm as FormType);
-      } else {
-        console.log(result);
+        // Ensure initial fields (field_1, field_2, field_3) are always present
+        const INITIAL_FIELD_IDS = ["field_1", "field_2", "field_3"];
+        const currentFields = form?.fields || initialForm?.fields || [];
+        const initialFields = currentFields.filter((f: FieldType) =>
+          INITIAL_FIELD_IDS.includes(f.id)
+        );
+        const newFields = result.fields.filter(
+          (f: FieldType) => !INITIAL_FIELD_IDS.includes(f.id)
+        );
+
+        const baseForm = form || initialForm;
+        if (baseForm) {
+          setForm({ ...baseForm, fields: [...initialFields, ...newFields] });
+        }
+        setConversationHistory((prev) => [
+          ...prev,
+          { role: "user", content: currentPrompt },
+          { role: "assistant", content: assistantResponse },
+        ]);
+        setPrompt("");
       }
     } catch (err) {
       const error =
@@ -223,10 +237,6 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                 Preview
               </Heading>
               <VStack gap={4} align="stretch" pb={16}>
-                {result?.response && (
-                  <Code>{JSON.stringify(result.response, null, 2)}</Code>
-                )}
-
                 {form?.fields.map((field: FieldType) => (
                   <Field.Root key={field.id} required={field.required}>
                     <Field.Label>
