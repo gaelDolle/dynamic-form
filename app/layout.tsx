@@ -1,4 +1,5 @@
 import { Provider } from "@/components/ui/provider";
+import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 
@@ -15,7 +16,10 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning>
       <body>
-        <Provider>{children}</Provider>
+        <Provider>
+          <Toaster />
+          {children}
+        </Provider>
       </body>
     </html>
   );

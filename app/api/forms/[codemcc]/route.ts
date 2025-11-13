@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { MCC_FORMS } from "../mcc-forms";
+import { MCC_FORMS } from "../../../../components/form/mcc-forms";
 
 export async function GET(
   req: NextRequest,
@@ -7,7 +7,6 @@ export async function GET(
 ) {
   try {
     const { codemcc } = await params;
-    console.log("🚀 ~ GET ~ codemcc:", codemcc);
 
     if (!codemcc) {
       return NextResponse.json(

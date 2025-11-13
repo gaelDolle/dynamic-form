@@ -1,4 +1,4 @@
-import { FormType } from "../../admin/page";
+import { FormType } from "@/types/form";
 
 export const MCC_FORMS: Record<string, FormType> = {
   "5411": {

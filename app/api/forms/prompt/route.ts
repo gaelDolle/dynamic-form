@@ -96,12 +96,9 @@ export async function POST(req: Request) {
       temperature: 0.7,
       max_tokens: 2000,
     });
-    console.log("🚀 ~ POST ~ completion:", completion);
 
     const response = completion.choices[0]?.message?.content || "";
     const parsedResponse = JSON.parse(response);
-
-    console.log("AI Response:", parsedResponse);
 
     return NextResponse.json({
       fields: parsedResponse.fields || [],

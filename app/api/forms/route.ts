@@ -1,10 +1,9 @@
-import { DEFAULT_REQUIRED_FIELDS } from "@/app/lib/default-fields";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   return NextResponse.json({
     id: "form_1",
-    fields: DEFAULT_REQUIRED_FIELDS,
+    //fields: DEFAULT_REQUIRED_FIELDS,
   });
 }
 

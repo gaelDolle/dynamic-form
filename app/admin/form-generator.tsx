@@ -1,6 +1,7 @@
 "use client";
-import FormField from "@/components/form-field";
+import FormField from "@/components/form/form-field";
 import { toaster } from "@/components/ui/toaster";
+import { FieldType, FormType } from "@/types/form";
 import {
   Badge,
   Box,
@@ -13,17 +14,21 @@ import {
   Heading,
   Icon,
   SimpleGrid,
-  Span,
   Text,
   Textarea,
   VStack,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { LuDownload, LuRotateCcw, LuSave } from "react-icons/lu";
 import { RxMagicWand } from "react-icons/rx";
-import { FieldType, FormType } from "./page";
-import SelectMCC, { MCCOption, MCC_OPTIONS } from "./select-mcc";
+import SelectMCC, {
+  MCCOption,
+  MCC_OPTIONS,
+} from "../../components/form/select-mcc";
+
+type FormData = Record<string, string | boolean>;
 
 const FormGenerator = () => {
   const [prompt, setPrompt] = useState("");
@@ -35,6 +40,31 @@ const FormGenerator = () => {
     Array<{ role: "user" | "assistant"; content: string; timestamp: Date }>
   >([]);
   const router = useRouter();
+
+  const {
+    register,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm<FormData>({
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+    shouldUnregister: false,
+  });
+
+  useEffect(() => {
+    if (form) {
+      const defaultValues: FormData = {};
+      form.fields.forEach((field) => {
+        if (field.type === "checkbox") {
+          defaultValues[field.name] = false;
+        } else {
+          defaultValues[field.name] = "";
+        }
+      });
+      reset(defaultValues);
+    }
+  }, [form, reset]);
 
   useEffect(() => {
     const fetchFormByMCC = async () => {
@@ -264,7 +294,7 @@ const FormGenerator = () => {
             <Card.Header borderBottom="1px solid" borderColor="gray.200">
               <HStack justify="space-between" align="center">
                 <Heading size="md" display="flex" alignItems="center" gap={2}>
-                  ⚙️ Configuration
+                  Configuration
                 </Heading>
                 <Button
                   size="sm"
@@ -418,7 +448,7 @@ const FormGenerator = () => {
             </Card.Body>
 
             {/* Footer */}
-             <Card.Footer
+            <Card.Footer
               borderTop="1px solid"
               borderColor="gray.200"
               bg="white"
@@ -469,7 +499,7 @@ const FormGenerator = () => {
             {/* Header */}
             <Card.Header borderBottom="1px solid" borderColor="gray.200">
               <Heading size="md" display="flex" alignItems="center" gap={2}>
-                👁️ Aperçu du formulaire
+                Aperçu du formulaire
               </Heading>
             </Card.Header>
 
@@ -523,7 +553,14 @@ const FormGenerator = () => {
                   </Text>
                 </Box>
               ) : (
-                <VStack align="stretch" gap={3} pb={20}>
+                <VStack
+                  //alignItems="stretch"
+                  gap={3}
+                  pb={20}
+                  justifyContent="space-between"
+                  h="100%"
+                  position="relative"
+                >
                   <SimpleGrid columns={{ base: 1, md: 2 }} gap={3} w="100%">
                     {form.fields.map((field: FieldType) => (
                       <GridItem
@@ -549,14 +586,6 @@ const FormGenerator = () => {
                         >
                           <HStack justify="space-between" align="start" mb={2}>
                             <Box flex="1">
-                              <Text fontSize="sm" fontWeight="medium" mb={1}>
-                                {field.label}
-                                {field.required && (
-                                  <Span color="red.500" ml={1}>
-                                    *
-                                  </Span>
-                                )}
-                              </Text>
                               {field.locked ? (
                                 <Badge size="xs" colorPalette="gray">
                                   🔒 Champ MCC
@@ -568,25 +597,34 @@ const FormGenerator = () => {
                               )}
                             </Box>
                           </HStack>
-                          <FormField field={field} />
+                          <FormField
+                            field={field}
+                            register={register}
+                            errors={errors}
+                            control={control}
+                          />
                         </Box>
                       </GridItem>
                     ))}
                   </SimpleGrid>
 
                   {/* Submit Button */}
-                  <Button
-                    colorPalette="blue"
-                    size="md"
-                    w="100%"
-                    mt={2}
-                    onClick={handleSaveAndRedirect}
-                  >
-                    <Icon>
-                      <LuSave />
-                    </Icon>
-                    Soumettre le formulaire
-                  </Button>
+                  {!!form?.fields?.length && (
+                    <Button
+                      colorPalette="blue"
+                      size="md"
+                      w="100%"
+                      mt={2}
+                      onClick={handleSaveAndRedirect}
+                      position="absolute"
+                      bottom={4}
+                    >
+                      <Icon>
+                        <LuSave />
+                      </Icon>
+                      Sauvegarder le formulaire
+                    </Button>
+                  )}
                 </VStack>
               )}
             </Card.Body>
