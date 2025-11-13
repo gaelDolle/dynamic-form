@@ -6,18 +6,18 @@ export interface MCCOption {
 }
 
 export const MCC_OPTIONS: MCCOption[] = [
-  { label: "Grocery Stores/Supermarkets", value: "5411" },
-  { label: "5812 - Eating Places, Restaurants", value: "5812" },
+  { label: "Épiceries/Supermarchés", value: "5411" },
+  { label: "Restaurants, Lieux de restauration", value: "5812" },
   {
-    label: "Local/Suburban Commuter Passenger Transportation",
+    label: "Transport de passagers local/banlieue",
     value: "4111",
   },
   {
-    label: "Miscellaneous and Specialty Retail Stores",
+    label: "Magasins de détail divers et spécialisés",
     value: "5999",
   },
   {
-    label: "Transportation Services (Not Elsewhere Classified)",
+    label: "Services de transport (non classés ailleurs)",
     value: "4789",
   },
 ];
@@ -36,12 +36,13 @@ const SelectMCC = ({
       })}
       value={value ? [value.value] : []}
       onValueChange={(e) => onChange(e.value[0] || "")}
+      cursor="pointer"
     >
       <Select.HiddenSelect />
       <Select.Label />
       <Select.Control>
         <Select.Trigger>
-          <Select.ValueText placeholder="Select a MCC" />
+          <Select.ValueText placeholder="Sélectionnez un MCC" />
         </Select.Trigger>
         <Select.IndicatorGroup>
           <Select.Indicator />
@@ -52,10 +53,16 @@ const SelectMCC = ({
         <Select.Content>
           {MCC_OPTIONS.map((option) => (
             <Select.Item key={option.value} item={option.value}>
-              <Stack gap="0">
+              <Stack
+                direction="row"
+                gap={1}
+                wrap="wrap"
+                alignItems="center"
+                p={1}
+              >
                 <Select.ItemText>{option.value}</Select.ItemText>
                 <Span color="fg.muted" textStyle="xs">
-                  {option.label}
+                  - {option.label}
                 </Span>
               </Stack>
             </Select.Item>

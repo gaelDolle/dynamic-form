@@ -7,12 +7,14 @@ import {
   Container,
   Field,
   Flex,
+  GridItem,
   HStack,
   Heading,
   Icon,
   IconButton,
   Input,
   Select,
+  SimpleGrid,
   Text,
   Textarea,
   VStack,
@@ -24,19 +26,9 @@ import { RxMagicWand } from "react-icons/rx";
 import { FieldType, FormType } from "./page";
 import SelectMCC, { MCCOption, MCC_OPTIONS } from "./select-mcc";
 
-interface FormGeneratorProps {
-  initialData?: FormType | null;
-}
-
-interface HistoryEntry {
-  prompt: string;
-  timestamp: Date;
-}
-
-const FormGenerator = ({ initialData }: FormGeneratorProps) => {
+const FormGenerator = () => {
   const [prompt, setPrompt] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
-  const [result, setResult] = useState<{ response: string } | null>(null);
   const [initialForm, setInitialForm] = useState<FormType | null>(null);
   const [mcc, setMcc] = useState<MCCOption | null>(null);
   const [form, setForm] = useState<FormType | null>(null);
@@ -45,15 +37,14 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
   >([]);
 
   useEffect(() => {
-    if (initialData?.fields) {
-      setForm(initialData as FormType);
-    }
-  }, [initialData]);
-
-  useEffect(() => {
     const fetchFormByMCC = async () => {
       console.log("🚀 ~ fetchFormByMCC ~ mcc:", mcc);
-      if (!mcc?.value) return;
+      if (!mcc?.value) {
+        setConversationHistory([]);
+        setForm(null);
+        setPrompt("");
+        return;
+      }
 
       try {
         setLoadingAI(true);
@@ -70,7 +61,6 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
         setInitialForm(formData as FormType);
         setForm(formData as FormType);
         setConversationHistory([]);
-        setResult(null);
         setPrompt("");
       } catch (err) {
         const error =
@@ -107,15 +97,6 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const result = await res.json();
 
-      // Mettre à jour l'historique de conversation
-      const assistantResponse = JSON.stringify(result);
-      const now = new Date();
-      setConversationHistory((prev) => [
-        ...prev,
-        { role: "user", content: currentPrompt, timestamp: now },
-        { role: "assistant", content: assistantResponse, timestamp: now },
-      ]);
-
       if (result.fields && Array.isArray(result.fields)) {
         // Ensure initial fields (field_1, field_2, field_3) are always present
         const INITIAL_FIELD_IDS = ["field_1", "field_2", "field_3"];
@@ -131,6 +112,9 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
         if (baseForm) {
           setForm({ ...baseForm, fields: [...initialFields, ...newFields] });
         }
+
+        // Mettre à jour l'historique de conversation
+        const assistantResponse = JSON.stringify(result);
         const now = new Date();
         setConversationHistory((prev) => [
           ...prev,
@@ -158,9 +142,21 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
   return (
     <Box w="100%" minH="100vh" bg="gray.100">
       <Container fluid py={32} px={16} maxW="7xl">
-        <Flex minH="80vh" p={4} gap={4}>
+        <Flex
+          minH="80vh"
+          p={4}
+          gap={4}
+          wrap="wrap"
+          flexDirection={{ base: "column", md: "row" }}
+        >
           {/* AI Prompt input */}
-          <Card.Root flex="1" bg="white" p={4} borderRadius="md" shadow="md">
+          <Card.Root
+            flex={{ base: "1", md: "0.4" }}
+            bg="white"
+            p={4}
+            borderRadius="md"
+            shadow="md"
+          >
             <Card.Body>
               <Heading size="sm">Votre MCC</Heading>
               <SelectMCC
@@ -198,7 +194,7 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
               {/* Conversation history */}
               {conversationHistory?.filter((item) => item.role === "user")
                 .length === 0 && (
-                <Text fontSize="sm" color="gray.500">
+                <Text fontSize="sm" color="gray.500" my={4}>
                   Aucun historique
                 </Text>
               )}
@@ -231,7 +227,6 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                     onClick={() => {
                       setConversationHistory([]);
                       setForm(initialForm);
-                      setResult(null);
                       setPrompt("");
                     }}
                     size="sm"
@@ -249,62 +244,85 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
           </Card.Root>
 
           {/* Form preview */}
-          <Card.Root flex="1" bg="white" p={4} borderRadius="md" shadow="md">
+          <Card.Root
+            flex={{ base: "1", md: "0.6" }}
+            bg="white"
+            p={4}
+            borderRadius="md"
+            shadow="md"
+          >
             <Card.Body position="relative">
               <Heading size="md" mb={3}>
                 Preview
               </Heading>
-              <VStack gap={4} align="stretch" pb={16}>
-                {form?.fields.map((field: FieldType) => (
-                  <Field.Root key={field.id} required={field.required}>
-                    <Field.Label>
-                      {field.label}
-                      {field.required && <Field.RequiredIndicator />}
-                    </Field.Label>
-                    {field.type === "textarea" ? (
-                      <Textarea placeholder={field.placeholder} />
-                    ) : field.type === "select" && field.options.length > 0 ? (
-                      <Select.Root
-                        collection={createListCollection({
-                          items: field.options,
-                        })}
-                      >
-                        <Select.HiddenSelect />
-                        <Select.Label />
-                        <Select.Control>
-                          <Select.Trigger>
-                            <Select.ValueText placeholder={field.placeholder} />
-                          </Select.Trigger>
-                          <Select.IndicatorGroup>
-                            <Select.Indicator />
-                            <Select.ClearTrigger />
-                          </Select.IndicatorGroup>
-                        </Select.Control>
-                        <Select.Positioner>
-                          <Select.Content>
-                            {field.options.map((option) => (
-                              <Select.Item key={option} item={option}>
-                                {option}
-                              </Select.Item>
-                            ))}
-                          </Select.Content>
-                        </Select.Positioner>
-                      </Select.Root>
-                    ) : field.type === "checkbox" ? (
-                      <Checkbox.Root>
-                        <Checkbox.Control />
-                        <Checkbox.Label>{field.label}</Checkbox.Label>
-                      </Checkbox.Root>
-                    ) : (
-                      <Input
-                        type={field.type}
-                        placeholder={field.placeholder}
-                      />
-                    )}
-                  </Field.Root>
-                ))}
+              <VStack gap={4} pb={16}>
+                <SimpleGrid columns={{ base: 1, md: 2 }} gap={4} w="100%">
+                  {form?.fields.map((field: FieldType) => (
+                    <GridItem
+                      key={field.id}
+                      colSpan={field.type === "textarea" ? 2 : 1}
+                    >
+                      <Field.Root required={field.required}>
+                        <Field.Label>
+                          {field.label}
+                          {field.required && <Field.RequiredIndicator />}
+                        </Field.Label>
+                        {field.type === "textarea" ? (
+                          <Textarea placeholder={field.placeholder} />
+                        ) : field.type === "select" &&
+                          field.options.length > 0 ? (
+                          <Select.Root
+                            collection={createListCollection({
+                              items: field.options,
+                            })}
+                            gap={0}
+                            cursor="pointer"
+                          >
+                            <Select.HiddenSelect />
+                            <Select.Label />
+                            <Select.Control>
+                              <Select.Trigger>
+                                <Select.ValueText
+                                  placeholder={field.placeholder}
+                                />
+                              </Select.Trigger>
+                              <Select.IndicatorGroup>
+                                <Select.Indicator />
+                                <Select.ClearTrigger />
+                              </Select.IndicatorGroup>
+                            </Select.Control>
+                            <Select.Positioner>
+                              <Select.Content>
+                                {field.options.map((option) => (
+                                  <Select.Item key={option} item={option}>
+                                    {option}
+                                  </Select.Item>
+                                ))}
+                              </Select.Content>
+                            </Select.Positioner>
+                          </Select.Root>
+                        ) : field.type === "checkbox" ? (
+                          <Checkbox.Root>
+                            <Checkbox.Control />
+                            <Checkbox.Label>{field.label}</Checkbox.Label>
+                          </Checkbox.Root>
+                        ) : (
+                          <Input
+                            type={field.type}
+                            placeholder={field.placeholder}
+                          />
+                        )}
+                      </Field.Root>
+                    </GridItem>
+                  ))}
+                </SimpleGrid>
                 {!!form?.fields?.length && (
-                  <Button colorPalette="gray" variant="surface" size="sm">
+                  <Button
+                    colorPalette="gray"
+                    variant="surface"
+                    size="sm"
+                    w="100%"
+                  >
                     Submit
                   </Button>
                 )}
@@ -316,7 +334,12 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                 bottom={4}
                 right={4}
               >
-                <Button colorPalette="green" variant="surface" size="sm">
+                <Button
+                  colorPalette="green"
+                  variant="surface"
+                  size="sm"
+                  disabled={!form?.fields?.length}
+                >
                   <Icon>
                     <LuSave />
                   </Icon>

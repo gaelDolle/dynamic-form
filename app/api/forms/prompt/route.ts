@@ -88,7 +88,7 @@ export async function POST(req: Request) {
     }
 
     // Ajouter le message actuel de l'utilisateur
-    messages.push({ role: "user", content: prompt });
+    messages.push({ role: "user", content: prompt?.trim() });
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
