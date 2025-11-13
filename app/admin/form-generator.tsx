@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   Checkbox,
-  Code,
   Container,
   Field,
   Flex,
@@ -13,6 +12,7 @@ import {
   Select,
   Textarea,
   VStack,
+  Text,
   createListCollection,
 } from "@chakra-ui/react";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -22,18 +22,20 @@ interface FormGeneratorProps {
   initialData?: FormType | null;
 }
 
+interface HistoryEntry {
+  prompt: string;
+  timestamp: Date;
+}
+
 const FormGenerator = ({ initialData }: FormGeneratorProps) => {
   const [prompt, setPrompt] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
-  const [result, setResult] = useState<{ response: string } | null>(null);
-  const [initialForm, setInitialForm] = useState<FormType | null>(null);
-
-  const [form, setForm] = useState<FormType | null>(null);
+  const [fields, setFields] = useState<FieldType[]>([]);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   useEffect(() => {
     if (initialData?.fields) {
-      setInitialForm(initialData);
-      setForm(initialData);
+      setFields(initialData.fields);
     }
   }, [initialData]);
 
@@ -48,22 +50,24 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ 
+          prompt,
+          currentFields: fields
+        }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const result = await res.json();
-      setResult(result);
-      console.log("🚀 ~ generateFromAI ~ result:", result);
 
       if (result.fields && Array.isArray(result.fields)) {
-        const newForm = {
-          ...initialForm,
-          fields: [...(initialForm?.fields || []), ...result.fields],
-        };
-        setForm(newForm as FormType);
-      } else {
-        console.log(result);
+        // Ensure initial fields (field_1, field_2, field_3) are always present
+        const INITIAL_FIELD_IDS = ["field_1", "field_2", "field_3"];
+        const initialFields = fields.filter((f: FieldType) => INITIAL_FIELD_IDS.includes(f.id));
+        const newFields = result.fields.filter((f: FieldType) => !INITIAL_FIELD_IDS.includes(f.id));
+        
+        setFields([...initialFields, ...newFields]);
+        setHistory(prev => [...prev, { prompt, timestamp: new Date() }]);
+        setPrompt("");
       }
     } catch (err) {
       const error =
@@ -90,7 +94,7 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                   setPrompt(e.target.value)
                 }
                 placeholder="Décris le formulaire souhaité..."
-                h="80%"
+                h="60%"
                 borderColor="gray.200"
               />
               <Button
@@ -102,6 +106,29 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
               >
                 Générer
               </Button>
+
+              {/* History */}
+              <Box mt={4}>
+                <Heading size="sm" mb={2}>
+                  Historique
+                </Heading>
+                <VStack align="stretch" gap={2} maxH="200px" overflowY="auto">
+                  {history.length === 0 ? (
+                    <Text fontSize="sm" color="gray.500">
+                      Aucun historique
+                    </Text>
+                  ) : (
+                    history.map((entry, idx) => (
+                      <Box key={idx} p={2} bg="gray.50" borderRadius="md">
+                        <Text fontSize="sm">{entry.prompt}</Text>
+                        <Text fontSize="xs" color="gray.500">
+                          {entry.timestamp.toLocaleTimeString()}
+                        </Text>
+                      </Box>
+                    ))
+                  )}
+                </VStack>
+              </Box>
             </Card.Body>
           </Card.Root>
 
@@ -112,11 +139,7 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                 Preview
               </Heading>
               <VStack gap={4} align="stretch">
-                {result?.response && (
-                  <Code>{JSON.stringify(result.response, null, 2)}</Code>
-                )}
-
-                {form?.fields.map((field: FieldType) => (
+                {fields.map((field: FieldType) => (
                   <Field.Root key={field.id} required={field.required}>
                     <Field.Label>
                       {field.label}
@@ -164,7 +187,7 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                     )}
                   </Field.Root>
                 ))}
-                {!!form?.fields?.length && (
+                {!!fields?.length && (
                   <Button colorPalette="green" variant="solid" size="sm">
                     Submit
                   </Button>
