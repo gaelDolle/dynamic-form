@@ -190,9 +190,12 @@ const FormGenerator = () => {
 
         const baseForm = form || initialForm;
         if (baseForm) {
+          const lockedFields = currentFields.filter((f) => f.locked);
+          const aiReturnedFields = result.fields;
+
           setForm({
             ...baseForm,
-            fields: [...currentFields, ...newFieldsWithUniqueIds],
+            fields: [...lockedFields, ...aiReturnedFields],
           });
         }
 
