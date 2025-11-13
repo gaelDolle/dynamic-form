@@ -13,6 +13,7 @@ import {
   IconButton,
   Input,
   Select,
+  Text,
   Textarea,
   VStack,
   createListCollection,
@@ -40,7 +41,7 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
   const [mcc, setMcc] = useState<MCCOption | null>(null);
   const [form, setForm] = useState<FormType | null>(null);
   const [conversationHistory, setConversationHistory] = useState<
-    Array<{ role: "user" | "assistant"; content: string }>
+    Array<{ role: "user" | "assistant"; content: string; timestamp: Date }>
   >([]);
 
   useEffect(() => {
@@ -108,10 +109,11 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
 
       // Mettre à jour l'historique de conversation
       const assistantResponse = JSON.stringify(result);
+      const now = new Date();
       setConversationHistory((prev) => [
         ...prev,
-        { role: "user", content: currentPrompt },
-        { role: "assistant", content: assistantResponse },
+        { role: "user", content: currentPrompt, timestamp: now },
+        { role: "assistant", content: assistantResponse, timestamp: now },
       ]);
 
       if (result.fields && Array.isArray(result.fields)) {
@@ -129,10 +131,11 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
         if (baseForm) {
           setForm({ ...baseForm, fields: [...initialFields, ...newFields] });
         }
+        const now = new Date();
         setConversationHistory((prev) => [
           ...prev,
-          { role: "user", content: currentPrompt },
-          { role: "assistant", content: assistantResponse },
+          { role: "user", content: currentPrompt, timestamp: now },
+          { role: "assistant", content: assistantResponse, timestamp: now },
         ]);
         setPrompt("");
       }
@@ -193,6 +196,12 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                 Générer
               </Button>
               {/* Conversation history */}
+              {conversationHistory?.filter((item) => item.role === "user")
+                .length === 0 && (
+                <Text fontSize="sm" color="gray.500">
+                  Aucun historique
+                </Text>
+              )}
               <Box
                 as="ul"
                 listStyleType="circle"
@@ -204,7 +213,16 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                 {conversationHistory
                   ?.filter((item) => item.role === "user")
                   .map((item) => (
-                    <li key={item.content}>{item.content}</li>
+                    <li key={item.content}>
+                      <VStack gap={0} align="flex-start">
+                        <Text fontSize="sm" fontWeight="bold">
+                          {item.content}
+                        </Text>
+                        <Text fontSize="xs" color="gray.500">
+                          {item.timestamp.toLocaleTimeString()}
+                        </Text>
+                      </VStack>
+                    </li>
                   ))}
               </Box>
               <Flex justify="flex-end">
