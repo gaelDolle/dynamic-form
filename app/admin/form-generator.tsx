@@ -46,6 +46,40 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
     }
   }, [initialData]);
 
+  useEffect(() => {
+    const fetchFormByMCC = async () => {
+      console.log("🚀 ~ fetchFormByMCC ~ mcc:", mcc);
+      if (!mcc?.value) return;
+
+      try {
+        setLoadingAI(true);
+        const res = await fetch(`/api/forms/${mcc.value}`, {
+          method: "GET",
+          cache: "no-store",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const formData = await res.json();
+        setInitialForm(formData as FormType);
+        setForm(formData as FormType);
+        setConversationHistory([]);
+        setResult(null);
+        setPrompt("");
+      } catch (err) {
+        const error =
+          err instanceof Error ? err.message : "Une erreur est survenue";
+        console.error("Error fetching form by MCC:", error);
+      } finally {
+        setLoadingAI(false);
+      }
+    };
+
+    fetchFormByMCC();
+  }, [mcc]);
+
   const generateFromAI = async () => {
     if (!prompt.trim()) return;
 
@@ -183,7 +217,7 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
               <Heading size="md" mb={3}>
                 Preview
               </Heading>
-              <VStack gap={4} align="stretch">
+              <VStack gap={4} align="stretch" pb={16}>
                 {result?.response && (
                   <Code>{JSON.stringify(result.response, null, 2)}</Code>
                 )}
