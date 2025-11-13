@@ -91,21 +91,33 @@ Response: {"fields": []}`;
 
 export async function POST(req: Request) {
   try {
-    const { prompt } = await req.json();
+    const { prompt, history } = await req.json();
 
     if (!prompt) {
       return NextResponse.json({ error: "Missing prompt" }, { status: 400 });
     }
 
+    // Construire le tableau de messages avec l'historique
+    const messages: Array<{
+      role: "system" | "user" | "assistant";
+      content: string;
+    }> = [{ role: "system", content: SYSTEM_PROMPT }];
+
+    // Ajouter l'historique de conversation si fourni
+    if (history && Array.isArray(history)) {
+      messages.push(...history);
+    }
+
+    // Ajouter le message actuel de l'utilisateur
+    messages.push({ role: "user", content: prompt });
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: prompt },
-      ],
+      messages,
       temperature: 0.7,
       max_tokens: 2000,
     });
+    console.log("🚀 ~ POST ~ completion:", completion);
 
     const response = completion.choices[0]?.message?.content || "";
 
