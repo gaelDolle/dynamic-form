@@ -25,8 +25,6 @@ import { RxMagicWand } from "react-icons/rx";
 import { FieldType, FormType } from "./page";
 import SelectMCC, { MCCOption, MCC_OPTIONS } from "./select-mcc";
 
-
-
 const FormGenerator = () => {
   const [prompt, setPrompt] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
@@ -235,7 +233,6 @@ const FormGenerator = () => {
     });
   };
 
-
   // Count fields
   const lockedFieldsCount = form?.fields.filter((f) => f.locked).length || 0;
   const unlockedFieldsCount = form?.fields.filter((f) => !f.locked).length || 0;
@@ -421,7 +418,7 @@ const FormGenerator = () => {
             </Card.Body>
 
             {/* Footer */}
-            <Card.Footer
+             <Card.Footer
               borderTop="1px solid"
               borderColor="gray.200"
               bg="white"
