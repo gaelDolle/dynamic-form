@@ -99,10 +99,13 @@ const FormField = ({ field, register, errors, control }: FormFieldProps) => {
               typeof controllerField.value === "string"
                 ? controllerField.value
                 : "";
+            const normalizedOptions = field.options.map((option) =>
+              typeof option === "string" ? option : option.value
+            );
             return (
               <Select.Root
                 collection={createListCollection({
-                  items: field.options,
+                  items: normalizedOptions,
                 })}
                 gap={0}
                 cursor="pointer"
@@ -124,11 +127,17 @@ const FormField = ({ field, register, errors, control }: FormFieldProps) => {
                 </Select.Control>
                 <Select.Positioner>
                   <Select.Content>
-                    {field.options.map((option) => (
-                      <Select.Item key={option} item={option}>
-                        {option}
-                      </Select.Item>
-                    ))}
+                    {field.options.map((option) => {
+                      const optionValue =
+                        typeof option === "string" ? option : option.value;
+                      const optionLabel =
+                        typeof option === "string" ? option : option.label;
+                      return (
+                        <Select.Item key={optionValue} item={optionValue}>
+                          {optionLabel}
+                        </Select.Item>
+                      );
+                    })}
                   </Select.Content>
                 </Select.Positioner>
               </Select.Root>

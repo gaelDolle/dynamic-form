@@ -5,7 +5,7 @@ export interface FieldType {
   name: string;
   placeholder: string;
   required: boolean;
-  options: string[];
+  options: (string | { value: string; label: string })[];
   locked?: boolean;
   value?: string | boolean;
 }
