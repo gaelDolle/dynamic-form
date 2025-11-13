@@ -8,6 +8,7 @@ export interface FieldType {
   placeholder: string;
   required: boolean;
   options: string[];
+  locked?: boolean;
 }
 
 export interface FormType {

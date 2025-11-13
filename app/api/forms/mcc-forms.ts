@@ -12,6 +12,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre prénom",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_2",
@@ -21,6 +22,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre nom",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_3",
@@ -30,6 +32,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre adresse de livraison",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_4",
@@ -39,6 +42,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre numéro de téléphone",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_5",
@@ -48,6 +52,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre adresse email",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_6",
@@ -57,6 +62,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Sélectionnez une méthode de paiement",
         required: false,
         options: ["Carte bancaire", "Espèces", "Chèque", "Virement"],
+        locked: true,
       },
     ],
   },
@@ -71,6 +77,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre prénom",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_2",
@@ -80,6 +87,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre nom",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_3",
@@ -89,6 +97,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre adresse de livraison",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_4",
@@ -98,6 +107,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre numéro de téléphone",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_5",
@@ -107,6 +117,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre adresse email",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_6",
@@ -116,6 +127,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Sélectionnez le type de commande",
         required: false,
         options: ["Sur place", "À emporter", "Livraison"],
+        locked: true,
       },
       {
         id: "field_7",
@@ -125,6 +137,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Indiquez vos allergies ou restrictions alimentaires",
         required: false,
         options: [],
+        locked: true,
       },
     ],
   },
@@ -139,6 +152,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre prénom",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_2",
@@ -148,6 +162,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre nom",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_3",
@@ -157,6 +172,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre adresse de livraison",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_4",
@@ -166,6 +182,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre numéro de téléphone",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_5",
@@ -175,6 +192,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre adresse email",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_6",
@@ -184,6 +202,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Sélectionnez le type de transport",
         required: false,
         options: ["Bus", "Train", "Métro", "Tramway"],
+        locked: true,
       },
       {
         id: "field_7",
@@ -193,6 +212,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre point de départ",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_8",
@@ -202,6 +222,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre point d'arrivée",
         required: false,
         options: [],
+        locked: true,
       },
     ],
   },
@@ -216,6 +237,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre prénom",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_2",
@@ -225,6 +247,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre nom",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_3",
@@ -234,6 +257,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre adresse de livraison",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_4",
@@ -243,6 +267,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre numéro de téléphone",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_5",
@@ -252,6 +277,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre adresse email",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_6",
@@ -261,6 +287,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre code postal",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_7",
@@ -270,6 +297,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Sélectionnez le type de produit",
         required: false,
         options: ["Électronique", "Vêtements", "Accessoires", "Autre"],
+        locked: true,
       },
     ],
   },
@@ -284,6 +312,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre prénom",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_2",
@@ -293,6 +322,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre nom",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_3",
@@ -302,6 +332,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre adresse de livraison",
         required: true,
         options: [],
+        locked: true,
       },
       {
         id: "field_4",
@@ -311,6 +342,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre numéro de téléphone",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_5",
@@ -320,6 +352,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Votre adresse email",
         required: false,
         options: [],
+        locked: true,
       },
       {
         id: "field_6",
@@ -334,6 +367,7 @@ export const MCC_FORMS: Record<string, FormType> = {
           "Service express",
           "Autre",
         ],
+        locked: true,
       },
       {
         id: "field_7",
@@ -343,6 +377,7 @@ export const MCC_FORMS: Record<string, FormType> = {
         placeholder: "Indiquez vos instructions spéciales",
         required: false,
         options: [],
+        locked: true,
       },
     ],
   },
