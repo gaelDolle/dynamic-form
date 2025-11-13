@@ -26,11 +26,14 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
   const [prompt, setPrompt] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
   const [result, setResult] = useState<{ response: string } | null>(null);
-  const [fields, setFields] = useState<FieldType[]>([]);
+  const [initialForm, setInitialForm] = useState<FormType | null>(null);
+
+  const [form, setForm] = useState<FormType | null>(null);
 
   useEffect(() => {
     if (initialData?.fields) {
-      setFields(initialData.fields);
+      setInitialForm(initialData);
+      setForm(initialData);
     }
   }, [initialData]);
 
@@ -51,9 +54,14 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const result = await res.json();
       setResult(result);
+      console.log("🚀 ~ generateFromAI ~ result:", result);
 
       if (result.fields && Array.isArray(result.fields)) {
-        setFields(result.fields);
+        const newForm = {
+          ...initialForm,
+          fields: [...(initialForm?.fields || []), ...result.fields],
+        };
+        setForm(newForm as FormType);
       } else {
         console.log(result);
       }
@@ -108,7 +116,7 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                   <Code>{JSON.stringify(result.response, null, 2)}</Code>
                 )}
 
-                {fields.map((field: FieldType) => (
+                {form?.fields.map((field: FieldType) => (
                   <Field.Root key={field.id} required={field.required}>
                     <Field.Label>
                       {field.label}
@@ -156,7 +164,7 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                     )}
                   </Field.Root>
                 ))}
-                {!!fields?.length && (
+                {!!form?.fields?.length && (
                   <Button colorPalette="green" variant="solid" size="sm">
                     Submit
                   </Button>
