@@ -97,20 +97,61 @@ const FormGenerator = () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const result = await res.json();
 
-      if (result.fields && Array.isArray(result.fields)) {
-        // Ensure initial fields (field_1, field_2, field_3) are always present
-        const INITIAL_FIELD_IDS = ["field_1", "field_2", "field_3"];
+      if (result?.fields && Array.isArray(result?.fields)) {
+        // Récupérer les champs existants du form MCC
         const currentFields = form?.fields || initialForm?.fields || [];
-        const initialFields = currentFields.filter((f: FieldType) =>
-          INITIAL_FIELD_IDS.includes(f.id)
+        console.log("🚀 ~ generateFromAI ~ currentFields:", currentFields);
+        const existingFieldIds = currentFields.map((f: FieldType) => f.id);
+        const existingFieldNames = currentFields.map((f: FieldType) => f.name);
+
+        // Filtrer les nouveaux champs du prompt (vérifier par name pour éviter les doublons)
+        const trulyNewFields = result.fields.filter(
+          (f: FieldType) => !existingFieldNames.includes(f.name)
         );
-        const newFields = result.fields.filter(
-          (f: FieldType) => !INITIAL_FIELD_IDS.includes(f.id)
+
+        // Générer des IDs uniques pour les nouveaux champs
+        const getMaxFieldId = () => {
+          return Math.max(
+            ...existingFieldIds.map((id) => {
+              const match = id.match(/field_(\d+)/);
+              return match ? parseInt(match[1], 10) : 0;
+            }),
+            0
+          );
+        };
+
+        let nextId = getMaxFieldId();
+        const usedIds = new Set(existingFieldIds);
+        const newFieldsWithUniqueIds = trulyNewFields.map(
+          (field: FieldType) => {
+            // Si l'ID existe déjà ou est déjà utilisé, générer un nouvel ID unique
+            if (usedIds.has(field.id)) {
+              nextId += 1;
+              const newId = `field_${nextId}`;
+              usedIds.add(newId);
+              return {
+                ...field,
+                id: newId,
+              };
+            }
+            // Marquer cet ID comme utilisé
+            usedIds.add(field.id);
+            return field;
+          }
+        );
+
+        console.log(
+          "🚀 ~ generateFromAI ~ newFieldsWithUniqueIds:",
+          newFieldsWithUniqueIds
         );
 
         const baseForm = form || initialForm;
+        console.log("🚀 ~ generateFromAI ~ baseForm:", baseForm);
         if (baseForm) {
-          setForm({ ...baseForm, fields: [...initialFields, ...newFields] });
+          setForm({
+            ...baseForm,
+            fields: [...currentFields, ...newFieldsWithUniqueIds],
+          });
         }
 
         // Mettre à jour l'historique de conversation
