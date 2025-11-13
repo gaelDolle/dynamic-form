@@ -11,6 +11,7 @@ import {
   HStack,
   Heading,
   Icon,
+  IconButton,
   Input,
   Select,
   Textarea,
@@ -18,7 +19,7 @@ import {
   createListCollection,
 } from "@chakra-ui/react";
 import { ChangeEvent, useEffect, useState } from "react";
-import { LuSave } from "react-icons/lu";
+import { LuSave, LuTrash } from "react-icons/lu";
 import { RxMagicWand } from "react-icons/rx";
 import { FieldType, FormType } from "./page";
 import SelectMCC, { MCCOption, MCC_OPTIONS } from "./select-mcc";
@@ -143,13 +144,36 @@ const FormGenerator = ({ initialData }: FormGeneratorProps) => {
                 </Icon>
                 Générer
               </Button>
-              <Box as="ul" listStyleType="circle" m={4}>
+              {/* Conversation history */}
+              <Box
+                as="ul"
+                listStyleType="circle"
+                my={4}
+                px={8}
+                color="gray.500"
+                fontSize="sm"
+              >
                 {conversationHistory
                   ?.filter((item) => item.role === "user")
                   .map((item) => (
                     <li key={item.content}>{item.content}</li>
                   ))}
               </Box>
+              <Flex justify="flex-end">
+                {conversationHistory.length > 0 && (
+                  <IconButton
+                    onClick={() => setConversationHistory([])}
+                    size="sm"
+                    colorPalette="gray"
+                    variant="surface"
+                    w="auto"
+                  >
+                    <Icon>
+                      <LuTrash />
+                    </Icon>
+                  </IconButton>
+                )}
+              </Flex>
             </Card.Body>
           </Card.Root>
 
