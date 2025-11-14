@@ -2,6 +2,7 @@
 import FormField from "@/components/form/form-field";
 import { toaster } from "@/components/ui/toaster";
 import { FieldType, FormType } from "@/types/form";
+import { capitalize } from "@/utils/capitalize";
 import {
   Badge,
   Box,
@@ -21,7 +22,7 @@ import {
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { LuDownload, LuRotateCcw, LuSave } from "react-icons/lu";
+import { LuDownload, LuLock, LuRotateCcw, LuSave } from "react-icons/lu";
 import { RxMagicWand } from "react-icons/rx";
 import SelectMCC, {
   MCCOption,
@@ -107,12 +108,11 @@ const FormGenerator = () => {
     fetchFormByMCC();
   }, [mcc]);
 
-  const generateFromAI = async (customPrompt?: string) => {
-    const currentPrompt = customPrompt || prompt;
-    if (!currentPrompt.trim()) return;
+  const generateFromAI = async () => {
+    const currentPrompt = prompt?.trim();
+    if (!currentPrompt) return;
 
     setLoadingAI(true);
-    if (!customPrompt) setPrompt("");
 
     try {
       const currentFields = form?.fields || initialForm?.fields || [];
@@ -206,8 +206,6 @@ const FormGenerator = () => {
           { role: "user", content: currentPrompt, timestamp: now },
           { role: "assistant", content: assistantResponse, timestamp: now },
         ]);
-
-        if (!customPrompt) setPrompt("");
       }
     } catch (err) {
       const error =
@@ -218,6 +216,7 @@ const FormGenerator = () => {
         description: "Impossible de générer les champs",
       });
     } finally {
+      setPrompt("");
       setLoadingAI(false);
     }
   };
@@ -277,21 +276,21 @@ const FormGenerator = () => {
   );
 
   return (
-    <Box w="100%" minH="100vh" bg="gray.50">
+    <Box w="100%" minH="100vh" bg="gray.100">
       <Container maxW="7xl" py={8} px={4}>
         {/* Two Column Layout */}
-        <SimpleGrid
-          columns={{ base: 1, lg: 2 }}
+        <Flex
+          direction={{ base: "column", md: "row" }}
           gap={4}
           minH="calc(100vh - 4rem)"
         >
           {/* LEFT PANEL - Configuration */}
           <Card.Root
-            bg="white"
             shadow="md"
             display="flex"
+            flex={{ base: "1", md: "0.4" }}
             flexDirection="column"
-            h="100%"
+            minH="100%"
           >
             {/* Header */}
             <Card.Header borderBottom="1px solid" borderColor="gray.200">
@@ -374,15 +373,6 @@ const FormGenerator = () => {
                     </Icon>
                     Générer avec IA
                   </Button>
-                  <Button
-                    variant="outline"
-                    colorPalette="gray"
-                    onClick={() => setPrompt("")}
-                    size="sm"
-                    disabled={!prompt}
-                  >
-                    Effacer
-                  </Button>
                 </HStack>
               </VStack>
               {/* History Section */}
@@ -398,7 +388,7 @@ const FormGenerator = () => {
               >
                 <HStack justify="space-between" align="center" mb={2}>
                   <Heading size="sm" display="flex" alignItems="center" gap={1}>
-                    📜 Historique
+                    Historique
                   </Heading>
                   <Text fontSize="xs" color="gray.500">
                     {userHistory.length} entrées
@@ -434,14 +424,14 @@ const FormGenerator = () => {
                           borderLeft="3px solid"
                           borderLeftColor="blue.500"
                         >
-                          <Box flex="1">
-                            <Text fontSize="sm" fontWeight="medium" mb={1}>
-                              {item.content}
+                          <VStack alignItems="flex-start" gap={0}>
+                            <Text fontSize="sm" fontWeight="medium">
+                              {capitalize(item.content)}
                             </Text>
                             <Text fontSize="xs" color="gray.500">
                               {item.timestamp.toLocaleTimeString()}
                             </Text>
-                          </Box>
+                          </VStack>
                         </Box>
                       ))}
                     </VStack>
@@ -456,7 +446,7 @@ const FormGenerator = () => {
               borderColor="gray.200"
               bg="white"
             >
-              <HStack justify="center" gap={3} w="100%">
+              <HStack justify="center" gap={3} w="100%" mt={2}>
                 <Button
                   size="sm"
                   variant="outline"
@@ -497,7 +487,8 @@ const FormGenerator = () => {
             shadow="md"
             display="flex"
             flexDirection="column"
-            h="100%"
+            minH="100%"
+            flex={{ base: "1", md: "0.6" }}
           >
             {/* Header */}
             <Card.Header borderBottom="1px solid" borderColor="gray.200">
@@ -523,12 +514,18 @@ const FormGenerator = () => {
                 <HStack gap={2}>
                   {lockedFieldsCount > 0 && (
                     <Badge colorPalette="gray" size="sm">
-                      🔒 {lockedFieldsCount} MCC
+                      <Icon>
+                        <LuLock />
+                      </Icon>
+                      {lockedFieldsCount} MCC
                     </Badge>
                   )}
                   {unlockedFieldsCount > 0 && (
                     <Badge colorPalette="blue" size="sm">
-                      ✨ {unlockedFieldsCount} IA
+                      <Icon>
+                        <RxMagicWand />
+                      </Icon>
+                      {unlockedFieldsCount} IA
                     </Badge>
                   )}
                   <Text fontSize="sm" fontWeight="medium">
@@ -573,11 +570,13 @@ const FormGenerator = () => {
                         {/* Field with locked indicator and delete button */}
                         <Box
                           p={3}
-                          bg={field.locked ? "gray.50" : "white"}
+                          pb={2}
+                          bg={"white"}
                           border="1px solid"
                           borderColor="gray.200"
                           borderRadius="md"
                           opacity={field.locked ? 0.95 : 1}
+                          boxShadow={"xs"}
                           _hover={{
                             borderColor: "gray.300",
                             shadow: "sm",
@@ -587,25 +586,34 @@ const FormGenerator = () => {
                           }}
                           position="relative"
                         >
-                          <HStack justify="space-between" align="start" mb={2}>
-                            <Box flex="1">
-                              {field.locked ? (
-                                <Badge size="xs" colorPalette="gray">
-                                  🔒 Champ MCC
-                                </Badge>
-                              ) : (
-                                <Badge size="xs" colorPalette="blue">
-                                  ✨ Généré par IA
-                                </Badge>
-                              )}
-                            </Box>
-                          </HStack>
                           <FormField
                             field={field}
                             register={register}
                             errors={errors}
                             control={control}
                           />
+                          <HStack
+                            justify="flex-end"
+                            align="start"
+                            my={2}
+                            color="gray.600"
+                          >
+                            {field.locked ? (
+                              <Badge colorPalette="gray" size="sm">
+                                <Icon boxSize={2}>
+                                  <LuLock />
+                                </Icon>
+                                <Text fontSize="2xs">Champ MCC</Text>
+                              </Badge>
+                            ) : (
+                              <Badge colorPalette="gray" size="sm">
+                                <Icon boxSize={2}>
+                                  <RxMagicWand />
+                                </Icon>
+                                <Text fontSize="2xs">Généré par IA</Text>
+                              </Badge>
+                            )}
+                          </HStack>
                         </Box>
                       </GridItem>
                     ))}
@@ -614,8 +622,9 @@ const FormGenerator = () => {
                   {/* Submit Button */}
                   {!!form?.fields?.length && (
                     <Button
-                      colorPalette="blue"
-                      size="md"
+                      colorPalette="green"
+                      variant="surface"
+                      size="sm"
                       w="100%"
                       mt={2}
                       onClick={handleSaveAndRedirect}
@@ -632,7 +641,7 @@ const FormGenerator = () => {
               )}
             </Card.Body>
           </Card.Root>
-        </SimpleGrid>
+        </Flex>
       </Container>
     </Box>
   );
